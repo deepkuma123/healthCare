@@ -33,7 +33,7 @@ const storage = multer.diskStorage({
 const upload = multer({
   storage: storage,
   limits: { fileSize: 1000000 }, // Limit file size if needed (1MB here)
-}).single("avatar");
+}).single("image");
 
 const sendOtp = async (req, res) => {
   try {
@@ -90,7 +90,7 @@ const verifyOtp = async (req, res) => {
     }
 
     let user = await User.findOne({ phoneNumber });
-
+    console.log("deepak");
     // Create new user if not found
     if (!user) {
       user = await User.create({
@@ -125,16 +125,18 @@ const registerUser = async (req, res) => {
         req.flash("error", "Error uploading file.");
         return res.redirect("/register");
       }
-      const { phoneNumber, name, dob, email, image } = req.body;
-      //   const avatarFileName = req.file ? req.file.filename : null; // Check if avatar file was uploaded
-      // console.log(req.file);
+      const { phoneNumber, name, dob, email } = req.body;
+      const avatarFileName = req.file ? req.file.filename : null; // Check if avatar file was uploaded
+      console.log(req.file);
       const user = await User.findOneAndUpdate(
         { phoneNumber },
-        { name, email, dob, isFirstTime: false, avatar: image },
+        { name, email, dob, isFirstTime: false, avatar: avatarFileName },
         { new: true }
       );
 
+      console.log({ user });
       if (!user) {
+        console.log({ user });
         return res.status(400).json({ success: false, msg: "User not found" });
       }
 
