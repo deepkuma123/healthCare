@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Enter OTP</title>
+  </head>
+  <body>
+    <h1>Enter OTP</h1>
+    <form action="/api/verify-otp" method="POST">
+      <label for="phoneNumber">Phone Number:</label>
+      <input
+        type="text"
+        id="phoneNumber"
+        name="phoneNumber"
+        required
+      />
+      <label for="otp">OTP:</label>
+      <input type="text" id="otp" name="otp" required />
+      <button type="submit">Verify OTP</button>
+    </form>
+  </body>
+</html>
