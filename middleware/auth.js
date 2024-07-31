@@ -4,7 +4,7 @@ const User = require("../models/userModel");
 
 const authenticateToken = async (req, res, next) => {
   const authHeader = req.headers["authorization"];
-  console.log(authHeader);
+  // console.log(authHeader);
   const token = authHeader && authHeader.split(" ")[1];
 
   try {
@@ -17,6 +17,7 @@ const authenticateToken = async (req, res, next) => {
       phoneNumber: decoded.phoneNumber,
     }).exec();
 
+    console.log({ user });
     // If the user is not found, respond with 403 Forbidden
     if (!user) {
       return res.status(403).json({ success: false, msg: "User not found" });
@@ -24,7 +25,6 @@ const authenticateToken = async (req, res, next) => {
 
     // Attach user to request object
     req.user = user;
-   
 
     // Proceed to the next middleware or route handler
     next();
