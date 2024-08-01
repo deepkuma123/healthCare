@@ -28,7 +28,6 @@ const donateList = async (req, res) => {
     upload(req, res, async (err) => {
       if (err) {
         console.error(err);
-        req.flash("error", "Error uploading file.");
         return res.redirect("/register");
       }
       const { title, description, category, address } = req.body;
