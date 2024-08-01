@@ -66,18 +66,30 @@ const donateList = async (req, res) => {
 
 const donationCategory = async (req, res) => {
   try {
-    const userId = req.user._id; // Using authenticated user ID
-    const { name } = req.body;
+    upload(req, res, async (err) => {
+      if (err) {
+        console.error(err);
+        return res.redirect("/register");
+      }
+      const userId = req.user._id; // Using authenticated user ID
+      const { name } = req.body;
+      const avatarFileName = req.file ? req.file.filename : null;
+      console.log(req.file);
 
-    // Create new category
-    const category = new DonationCategory({ name, user: userId });
-    await category.save();
+      // Create new category
+      const category = new DonationCategory({
+        name,
+        user: userId,
+        categoryIcon: avatarFileName,
+      });
+      await category.save();
 
-    // Associate category with the user
-    // req.user.hobbies.push(category._id);
-    // await req.user.save();
+      // Associate category with the user
+      // req.user.hobbies.push(category._id);
+      // await req.user.save();
 
-    res.status(201).json({ category: category, success: true });
+      res.status(201).json({ category: category, success: true });
+    });
   } catch (error) {
     console.log(error);
     res.status(400).send(error);

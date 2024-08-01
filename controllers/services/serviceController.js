@@ -49,7 +49,7 @@ const getService = async (req, res) => {
   try {
     // Create new category
     const services = await Service.find();
-    res.status(201).json({ services: services, success: true });
+    res.status(200).json({ services: services, success: true });
   } catch (error) {
     console.log(error);
     res.status(400).send(error);
