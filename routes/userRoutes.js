@@ -17,7 +17,7 @@ router.post("/send-otp", userController.sendOtp);
 router.post("/verify-otp", userController.verifyOtp);
 router.post("/register", authenticateToken, userController.registerUser);
 router.post("/edit", authenticateToken, userController.editUserDetails);
-router.post("/verify-token", authenticateToken, userController.verifyToken);
+router.get ("/verify-token", authenticateToken, userController.verifyToken);
 router.get("/allUsers", userController.getAllusers);
 router.get("/get-contacts", userMessageController.allUsersByInitialName);
 
