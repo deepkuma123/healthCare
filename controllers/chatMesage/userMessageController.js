@@ -1,4 +1,4 @@
-const User = require('../../models/userModel')
+const User = require("../../models/userModel");
 
 const allUsersByInitialName = async (req, res, next) => {
   try {
@@ -7,6 +7,7 @@ const allUsersByInitialName = async (req, res, next) => {
       .sort({ name: 1 })
       .select("id name email avatar");
 
+    console.log({ users });
     // Group users by the initial letter of their name
     const usersGroupByInitialLetter = {};
     users.forEach((user) => {
@@ -16,6 +17,8 @@ const allUsersByInitialName = async (req, res, next) => {
       }
       usersGroupByInitialLetter[initialLetter].push(user);
     });
+
+    // console.log(OnlineUser);
 
     // Send the grouped users in the response
     return res.status(200).send({ users: usersGroupByInitialLetter });

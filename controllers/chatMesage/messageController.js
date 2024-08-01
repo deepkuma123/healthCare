@@ -7,6 +7,7 @@ const addMessage = async (req, res, next) => {
   try {
     const { message, from, to } = req.body;
     const getUser = OnlineUsers.get(to);
+    // console.log(OnlineUsers);
     console.log({ getUser });
 
     if (message && from && to) {
@@ -18,9 +19,9 @@ const addMessage = async (req, res, next) => {
       });
       await newMessage.save();
 
-      const populatedMessage = await Message.findById(newMessage)
-        .populate("senderId")
-        .populate("receiverId");
+      const populatedMessage = await Message.findById(newMessage);
+      // .populate("senderId")
+      // .populate("receiverId");
 
       return res.status(201).send({ message: populatedMessage });
     }
@@ -126,27 +127,24 @@ const getInitialContactsWithMessages = async (req, res, next) => {
   try {
     const userId = req.params.from;
 
-    const user = await User.findById(userId)
-      .populate({
-        path: "sendMessages",
-        populate: { path: "receiverId senderId" },
-        options: { sort: { createdAt: -1 } },
-      })
-      .populate({
-        path: "receivedMessages",
-        populate: { path: "receiverId senderId" },
-        options: { sort: { createdAt: -1 } },
-      });
+    // console.log(userId);
 
-    console.log(user);
+    const user = await User.findById(userId)
+      .populate("sendMessages")
+      .populate("receivedMessages")
+      .exec();
+    console.log({ user });
+
+    // console.log({ user });
 
     const messages = [...user.sendMessages, ...user.receivedMessages];
     messages.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
-
+    // console.log({ messages });
     const users = new Map();
     const messageStatusChange = [];
 
     messages.forEach((msg) => {
+      console.log({ msg });
       const isSender = msg.senderId.toString() === userId.toString();
       const calculatedId = isSender ? msg.receiverId : msg.senderId;
       if (msg.messageStatus === "sent") {

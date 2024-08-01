@@ -33,7 +33,7 @@ const storage = multer.diskStorage({
 const upload = multer({
   storage: storage,
   limits: { fileSize: 1000000 }, // Limit file size if needed (1MB here)
-}).single("avatar");
+}).single("image");
 
 const sendOtp = async (req, res) => {
   try {
@@ -125,12 +125,12 @@ const registerUser = async (req, res) => {
         req.flash("error", "Error uploading file.");
         return res.redirect("/register");
       }
-      const { phoneNumber, name, dob, email, image } = req.body;
-      //   const avatarFileName = req.file ? req.file.filename : null; // Check if avatar file was uploaded
-      // console.log(req.file);
+      const { phoneNumber, name, dob, email } = req.body;
+      const avatarFileName = req.file ? req.file.filename : null; // Check if avatar file was uploaded
+      console.log(req.file);
       const user = await User.findOneAndUpdate(
         { phoneNumber },
-        { name, email, dob, isFirstTime: false, avatar: image },
+        { name, email, dob, isFirstTime: false, avatar: avatarFileName },
         { new: true }
       );
 
@@ -194,7 +194,7 @@ const verifyToken = async (req, res) => {
   // const users = await userModel.find();
   const users = req.user;
 
-  res.json({ user: users });
+  res.json({ user: users, status: 200 });
 };
 
 module.exports = {
