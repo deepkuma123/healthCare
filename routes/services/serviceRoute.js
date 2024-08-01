@@ -7,7 +7,7 @@ const {
 const router = express.Router();
 
 router.post("/createService", auth, createService);
-router.get("/getService", auth, getService);
+router.get("/getService", getService);
 // router.get("/donationItems", auth, donationItems);
 // router.get("/donationItems/:id", auth, donationItemsById);
 // router.get("/donateCategory", donateCategory);
