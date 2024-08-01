@@ -28,7 +28,7 @@ const donateList = async (req, res) => {
     upload(req, res, async (err) => {
       if (err) {
         console.error(err);
-        return res.redirect("/register");
+        // return res.redirect("/register");
       }
       const { title, description, category, address } = req.body;
       const user = req.user;
@@ -73,6 +73,7 @@ const donationCategory = async (req, res) => {
       }
       const userId = req.user._id; // Using authenticated user ID
       const { name } = req.body;
+      console.log(name);
       const avatarFileName = req.file ? req.file.filename : null;
       console.log(req.file);
 
@@ -84,7 +85,7 @@ const donationCategory = async (req, res) => {
       });
       await category.save();
 
-      // Associate category with the user
+      // Associate category with the user 
       // req.user.hobbies.push(category._id);
       // await req.user.save();
 
