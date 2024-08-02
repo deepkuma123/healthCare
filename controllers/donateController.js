@@ -69,7 +69,7 @@ const donationCategory = async (req, res) => {
     upload(req, res, async (err) => {
       if (err) {
         console.error(err);
-        return res.redirect("/register");
+        // return res.redirect("/register");
       }
       const userId = req.user._id; // Using authenticated user ID
       const { name } = req.body;
@@ -113,8 +113,15 @@ const donationItems = async (req, res) => {
       .populate("category")
       .populate("user");
 
+    for (const item of donationItems) {
+      if (item.isFirstTime === true) {
+        item.isFirstTime = false; // or any other value based on your requirement
+        await item.save(); // Save the updated item to the database
+      }
+    }
+
     // Send the donation items in the response
-    res.status(200).json({ donationItems });
+    res.status(200).json({ donationItems: donationItems });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Internal server error" });

@@ -20,7 +20,11 @@ const donationItemSchema = new mongoose.Schema(
     address: {
       type: String,
     },
-  }, 
+    isFirstTime: {
+      type: Boolean,
+      default: true,
+    },
+  },
   { timestamps: true }
 );
 
