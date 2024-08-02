@@ -108,20 +108,26 @@ const donateCategory = async (req, res) => {
 
 const donationItems = async (req, res) => {
   try {
+    const user = req.user;
     // Find all donation items and populate the category field
     const donationItems = await DonationItem.find()
       .populate("category")
       .populate("user");
 
-    for (const item of donationItems) {
-      if (item.isFirstTime === true) {
-        item.isFirstTime = false; // or any other value based on your requirement
-        await item.save(); // Save the updated item to the database
-      }
+    // for (const item of user) {
+    //   if (item.isFirstTime === true) {
+    //     item.isFirstTime = false; // or any other value based on your requirement
+    //     await item.save(); // Save the updated item to the database
+    //   }
+    // }
+
+    if (user.donatePageFirstTime === true) {
+      user.donatePageFirstTime = false;
+      await user.save();
     }
 
     // Send the donation items in the response
-    res.status(200).json({ donationItems: donationItems });
+    res.status(200).json({ donationItems: donationItems, user: user });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Internal server error" });
