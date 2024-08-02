@@ -53,6 +53,23 @@ exports.joinCommunity = async (req, res) => {
   }
 };
 
+exports.getAllCommunityDetails = async (req, res) => {
+  try {
+    const community = await Community.find()
+      .populate("creator")
+      .populate("members")
+      .populate("shareMeets");
+
+    if (!community) {
+      return res.status(404).send({ message: "Community not found" });
+    }
+
+    res.status(200).send(community);
+  } catch (error) {
+    res.status(500).send(error);
+  }
+};
+
 exports.getCommunityDetails = async (req, res) => {
   try {
     const community = await Community.findById(req.params.id)

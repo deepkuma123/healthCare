@@ -4,7 +4,15 @@ const sharemeetController = require("../controllers/sharemeetController");
 const authenticateToken = require("../middleware/auth");
 const router = express.Router();
 
-router.post("/", authenticateToken, sharemeetController.createShareMeet);
-router.get("/", authenticateToken, sharemeetController.getAllShareMeets);
+router.post(
+  "/sharemeets",
+  authenticateToken,
+  sharemeetController.createShareMeet
+);
+router.get(
+  "/sharemeets",
+  authenticateToken,
+  sharemeetController.getAllShareMeets
+);
 
 module.exports = router;

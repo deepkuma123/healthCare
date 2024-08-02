@@ -88,8 +88,8 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use("/api", userRoute);
 app.use("/api", categoryRoutes);
-app.use("/api/sharemeets", shareMeetRoutes);
-app.use("/api/communities", communityRoutes);
+app.use("/api", shareMeetRoutes);
+app.use("/api", communityRoutes);
 app.use("/api", donateList);
 app.use("/api", classCategoryRoutes);
 app.use("/api", instructorRoutes);
