@@ -73,7 +73,6 @@ const donationCategory = async (req, res) => {
       }
       const userId = req.user._id; // Using authenticated user ID
       const { name } = req.body;
-      console.log(name);
       const avatarFileName = req.file ? req.file.filename : null;
       console.log(req.file);
 
