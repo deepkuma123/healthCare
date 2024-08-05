@@ -1,6 +1,7 @@
 const category = require("../models/category");
 const Community = require("../models/community");
 const ShareMeet = require("../models/sharemeet");
+const userModel = require("../models/userModel");
 
 exports.createCommunity = async (req, res) => {
   // try {
@@ -72,11 +73,19 @@ exports.communityForm = async (req, res) => {
     // user.age = age;
     user.gender = gender;
     user.address = address;
-    await user.save();
+    const users = await user.save();
 
+    const populatedUser = await userModel
+      .findById(req.user._id)
+      .populate("hobbies");
+
+    console.log({ populatedUser });
     res
       .status(200)
-      .json({ message: "Hobbies updated successfully", hobbies: user.hobbies });
+      .json({
+        message: "Hobbies updated successfully",
+        hobbies: populatedUser,
+      });
   } catch (error) {
     console.log(error);
     res.status(500).json({ error: "An error occurred while updating hobbies" });
