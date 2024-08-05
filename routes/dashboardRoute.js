@@ -14,9 +14,9 @@ router.post("/dashBoardItem", createDashboardItem);
 router.get("/dashBoardItem", getAllDashBoardItem);
 
 // Get recent opened items of a user
-router.get("/:userId/recent-items", getRecentItem);
+router.get("/recent-items/:userId", getRecentItem);
 
 // Update recent items when a user accesses a dashboard item
-router.post("/:userId/recent-items", recentItemOpened);
+router.post("/recent-items/:userId", recentItemOpened);
 
 module.exports = router;
