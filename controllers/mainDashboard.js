@@ -37,10 +37,9 @@ const createDashboardItem = async (req, res) => {
       console.error(err);
       return res.json("image file does not uploaded");
     }
-
-    const { name } = req.body;
-    console.log(req.body);
     try {
+      const { name } = req.body;
+      console.log(req.body);
       const avatarFileName = req.file ? req.file.filename : null;
       let item = new DashboardItem({
         name,
@@ -62,7 +61,7 @@ const getRecentItem = async (req, res) => {
     if (!user) {
       return res.status(404).json({ msg: "User not found" });
     }
-    res.json(user.recentItems);
+    res.json(user);
   } catch (err) {
     res.status(500).send("Server Error");
   }
