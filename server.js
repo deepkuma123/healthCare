@@ -66,6 +66,7 @@ const classRoutes = require("./routes/OnlineClassRoute/classRoutes");
 const subscriptionRoutes = require("./routes/OnlineClassRoute/subscription");
 const messageRoutes = require("./routes/chatMessage/message");
 const serviceRoute = require("./routes/services/serviceRoute");
+const dashBoardRoute = require("./routes/dashboardRoute");
 
 // Set up EJS as the templating engine
 app.set("view engine", "ejs");
@@ -97,6 +98,7 @@ app.use("/api", classRoutes);
 app.use("/api", subscriptionRoutes);
 app.use("/api", messageRoutes);
 app.use("/api", serviceRoute);
+app.use("/api", dashBoardRoute);
 
 const server = http.createServer(app);
 

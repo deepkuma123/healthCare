@@ -1,21 +1,85 @@
+const category = require("../models/category");
 const Community = require("../models/community");
 const ShareMeet = require("../models/sharemeet");
 
 exports.createCommunity = async (req, res) => {
+  // try {
+  //   const { shareMeetIds } = req.body;
+  //   const creatorId = req.user._id;
+  //   console.log(req.user._id);
+  //   const community = new Community({
+  //     creator: creatorId,
+  //     members: [creatorId],
+  //     shareMeets: shareMeetIds,
+  //   });
+  //   await community.save();
+  //   res.status(201).send(community);
+  // } catch (error) {
+  //   console.log(error);
+  //   res.status(400).send(error);
+  // }
+
   try {
-    const { shareMeetIds } = req.body;
+    const { shareMeetIds, age, gender, hobbies } = req.body;
     const creatorId = req.user._id;
-    console.log(req.user._id);
+
+    // Update the user's details
+    const updatedUser = await User.findByIdAndUpdate(
+      creatorId,
+      { age, gender, hobbies },
+      { new: true } // Return the updated document
+    );
+
+    if (!updatedUser) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    // Create a new community with the updated user's details
     const community = new Community({
       creator: creatorId,
       members: [creatorId],
+      age: updatedUser.age,
+      gender: updatedUser.gender,
+      hobbies: updatedUser.hobbies,
       shareMeets: shareMeetIds,
     });
+
     await community.save();
     res.status(201).send(community);
   } catch (error) {
+    console.log({ error });
+    res.status(400).json(error);
+  }
+};
+
+exports.communityForm = async (req, res) => {
+  try {
+    const user = req.user;
+    const { userHobbie, gender, address } = req.body; // Expecting an array of hobby IDs
+
+    // Validate that the hobbies exist in the Category collection
+    const hobbies = await category.find({ name: { $in: userHobbie } });
+    console.log(hobbies);
+
+    if (hobbies.length !== userHobbie.length) {
+      return res.status(400).json({ error: "Some hobbies do not exist" });
+    }
+    // Extract the hobby IDs
+    const hobbyIds = hobbies.map((hobby) => hobby._id);
+
+    // Update the user's hobbies
+    user.hobbies = hobbyIds; // Assign the array of hobby IDs directly
+    // user.age = age;
+    user.gender = gender;
+    user.address = address;
+    await user.save();
+
+    res
+      .status(200)
+      .json({ message: "Hobbies updated successfully", hobbies: user.hobbies });
+  } catch (error) {
     console.log(error);
-    res.status(400).send(error);
+    res.status(500).json({ error: "An error occurred while updating hobbies" });
   }
 };
 

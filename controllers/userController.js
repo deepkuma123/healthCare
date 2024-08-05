@@ -119,12 +119,11 @@ const verifyOtp = async (req, res) => {
 
 const registerUser = async (req, res) => {
   try {
-    upload(req, res, async (err) => {
-      if (err) {
-        console.error(err);
-        req.flash("error", "Error uploading file.");
-        return res.redirect("/register");
-      }
+      upload(req, res, async (err) => {
+        if (err) {
+          console.error(err);
+          return res.json("image file does not uploaded");
+        }
       const { phoneNumber, name, dob, email } = req.body;
       const avatarFileName = req.file ? req.file.filename : null; // Check if avatar file was uploaded
       console.log(req.file);

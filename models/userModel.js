@@ -16,5 +16,14 @@ const userSchema = new mongoose.Schema({
   donatePageFirstTime: { type: Boolean, default: true },
   sendMessages: [{ type: mongoose.Schema.Types.ObjectId, ref: "Message" }], // Reference to Message model
   receivedMessages: [{ type: mongoose.Schema.Types.ObjectId, ref: "Message" }],
+  recentItems: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "DashboardItems",
+      max: 10, // Limit to 10 recent items
+    },
+  ],
+  address: { type: String },
+  gender: { type: String },
 });
 module.exports = mongoose.model("User", userSchema);
