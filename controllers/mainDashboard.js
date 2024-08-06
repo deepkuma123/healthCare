@@ -57,7 +57,8 @@ const createDashboardItem = async (req, res) => {
 
 const getRecentItem = async (req, res) => {
   try {
-    const user = await User.findById(req.params.userId).populate("recentItems");
+    const userId = req.user._id;
+    const user = await User.findById(userId).populate("recentItems");
     if (!user) {
       return res.status(404).json({ msg: "User not found" });
     }
@@ -68,9 +69,10 @@ const getRecentItem = async (req, res) => {
 };
 
 const recentItemOpened = async (req, res) => {
+  const userId = req.user._id;
   const { itemId } = req.body;
   try {
-    const user = await User.findById(req.params.userId);
+    const user = await User.findById(userId);
     const item = await DashboardItem.findById(itemId);
 
     if (!user || !item) {
