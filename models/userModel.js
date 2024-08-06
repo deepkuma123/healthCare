@@ -14,6 +14,8 @@ const userSchema = new mongoose.Schema({
     { type: mongoose.Schema.Types.ObjectId, ref: "Subscription" },
   ],
   donatePageFirstTime: { type: Boolean, default: true },
+  communityPageFirstTime: { type: Boolean, default: true },
+
   sendMessages: [{ type: mongoose.Schema.Types.ObjectId, ref: "Message" }], // Reference to Message model
   receivedMessages: [{ type: mongoose.Schema.Types.ObjectId, ref: "Message" }],
   recentItems: [

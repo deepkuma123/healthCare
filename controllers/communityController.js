@@ -133,6 +133,7 @@ exports.communityForm = async (req, res) => {
     // user.age = age;
     user.gender = gender;
     user.address = address;
+    user.communityPageFirstTime = false;
     const users = await user.save();
 
     const populatedUser = await userModel
