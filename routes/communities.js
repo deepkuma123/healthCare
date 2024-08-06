@@ -8,5 +8,6 @@ router.post("/userHobbies", auth, communityController.communityForm);
 router.post("/communities/join", auth, communityController.joinCommunity);
 router.get("/communities/all", communityController.getAllCommunityDetails);
 router.get("/communities/:id", communityController.getCommunityDetails);
+router.get("/community//byUserHobby", auth, communityController.getCommunity);
 
 module.exports = router;

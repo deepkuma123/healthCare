@@ -21,36 +21,67 @@ exports.createCommunity = async (req, res) => {
   // }
 
   try {
-    const { shareMeetIds, age, gender, hobbies } = req.body;
-    const creatorId = req.user._id;
+    const { name } = req.body; // Extract name and hobbies from the request body
+    const creatorId = req.user._id; // Get the creator's ID from req.user
 
-    // Update the user's details
-    const updatedUser = await User.findByIdAndUpdate(
-      creatorId,
-      { age, gender, hobbies },
-      { new: true } // Return the updated document
-    );
-
-    if (!updatedUser) {
-      return res.status(404).json({ error: "User not found" });
+    // Validate that name and hobbies are provided and hobbies is an array
+    if (!name) {
+      return res
+        .status(400)
+        .send({ message: "Name and at least one hobby are required" });
     }
 
-    // Create a new community with the updated user's details
+    const user = await userModel.findById(req.user._id).populate("hobbies"); // Populate the hobbies field
+    // Extract just the names of the hobbies
+    const hobbyNames = user.hobbies.map((hobby) => hobby.name);
+    // Create a new Community instance with the creator, name, and hobbies
     const community = new Community({
-      creator: creatorId,
-      members: [creatorId],
-      age: updatedUser.age,
-      gender: updatedUser.gender,
-      hobbies: updatedUser.hobbies,
-      shareMeets: shareMeetIds,
+      name, // Set the community name
+      hobbies: hobbyNames, // Set the community hobbies (array)
+      creator: creatorId, // Set the creator of the community
+      members: [creatorId], // Add the creator as the first member of the community
     });
 
-    await community.save();
-    res.status(201).send(community);
+    console.log(community);
+
+    await community.save(); // Save the community to the database
+    res.status(201).send({ community: community }); // Respond with the created community
   } catch (error) {
-    console.log({ error });
-    res.status(400).json(error);
+    console.log(error); // Log any errors for debugging
+    res.status(400).send({ message: "Failed to create community", error }); // Respond with a 400 status and the error
   }
+
+  // try {
+  //   const { shareMeetIds, age, gender, hobbies } = req.body;
+  //   const creatorId = req.user._id;
+
+  //   // Update the user's details
+  //   const updatedUser = await User.findByIdAndUpdate(
+  //     creatorId,
+  //     { age, gender, hobbies },
+  //     { new: true } // Return the updated document
+  //   );
+
+  //   if (!updatedUser) {
+  //     return res.status(404).json({ error: "User not found" });
+  //   }
+
+  //   // Create a new community with the updated user's details
+  //   const community = new Community({
+  //     creator: creatorId,
+  //     members: [creatorId],
+  //     age: updatedUser.age,
+  //     gender: updatedUser.gender,
+  //     hobbies: updatedUser.hobbies,
+  //     shareMeets: shareMeetIds,
+  //   });
+
+  //   await community.save();
+  //   res.status(201).send(community);
+  // } catch (error) {
+  //   console.log({ error });
+  //   res.status(400).json(error);
+  // }
 };
 
 exports.communityForm = async (req, res) => {
@@ -80,12 +111,10 @@ exports.communityForm = async (req, res) => {
       .populate("hobbies");
 
     console.log({ populatedUser });
-    res
-      .status(200)
-      .json({
-        message: "Hobbies updated successfully",
-        hobbies: populatedUser,
-      });
+    res.status(200).json({
+      message: "Hobbies updated successfully",
+      hobbies: populatedUser,
+    });
   } catch (error) {
     console.log(error);
     res.status(500).json({ error: "An error occurred while updating hobbies" });
@@ -94,20 +123,20 @@ exports.communityForm = async (req, res) => {
 
 exports.joinCommunity = async (req, res) => {
   try {
-    const { shareMeetId } = req.body;
+    const { communityId } = req.body;
     const userId = req.user._id;
     console.log(userId);
-    const shareMeet = await ShareMeet.findById(shareMeetId);
-
-    if (!shareMeet) {
-      return res.status(404).send({ message: "ShareMeet not found" });
-    }
-
-    let community = await Community.findOne({ shareMeets: shareMeetId });
+    const community = await Community.findById(communityId);
 
     if (!community) {
-      return res.status(404).send({ message: "Community not found" });
+      return res.status(404).send({ message: "community not found" });
     }
+
+    // let community = await Community.findOne({ shareMeets: shareMeetId });
+
+    // if (!community) {
+    //   return res.status(404).send({ message: "Community not found" });
+    // }
 
     // Check if user is already a member
     if (community.members.includes(userId)) {
@@ -130,8 +159,7 @@ exports.getAllCommunityDetails = async (req, res) => {
   try {
     const community = await Community.find()
       .populate("creator")
-      .populate("members")
-      .populate("shareMeets");
+      .populate("members");
 
     if (!community) {
       return res.status(404).send({ message: "Community not found" });
@@ -147,8 +175,7 @@ exports.getCommunityDetails = async (req, res) => {
   try {
     const community = await Community.findById(req.params.id)
       .populate("creator")
-      .populate("members")
-      .populate("shareMeets");
+      .populate("members");
 
     if (!community) {
       return res.status(404).send({ message: "Community not found" });
@@ -157,5 +184,32 @@ exports.getCommunityDetails = async (req, res) => {
     res.status(200).send(community);
   } catch (error) {
     res.status(500).send(error);
+  }
+};
+
+exports.getCommunity = async (req, res) => {
+  try {
+    // Fetch the user's hobbies
+    const user = await userModel.findById(req.user._id).populate("hobbies");
+
+    if (!user) {
+      return res.status(404).send({ message: "User not found" });
+    }
+
+    // const userHobbies = user.hobbies;
+    const hobbyNames = user.hobbies.map((hobby) => hobby.name);
+
+    console.log(hobbyNames);
+    if (hobbyNames.length === 0) {
+      return res.status(200).send({ message: "No hobbies found for the user" });
+    }
+
+    // Query the communities that have any of the user's hobbies
+    const communities = await Community.find({ hobbies: { $in: hobbyNames } });
+    console.log(communities);
+    res.status(200).send(communities);
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({ message: "Error fetching communities", error });
   }
 };

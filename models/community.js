@@ -7,9 +7,10 @@ const CommunitySchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
-    hobbies: { type: [String] },
+    name: { type: String, unique: true },
+    hobbies: [{ type: String }],
     members: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
-    shareMeets: [{ type: mongoose.Schema.Types.ObjectId, ref: "ShareMeet" }],
+    // shareMeets: [{ type: mongoose.Schema.Types.ObjectId, ref: "ShareMeet" }],
   },
 
   { timestamps: true }

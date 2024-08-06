@@ -17,7 +17,7 @@ const authenticateToken = async (req, res, next) => {
       phoneNumber: decoded.phoneNumber,
     }).exec();
 
-    console.log({ user });
+    // console.log({ user });
     // If the user is not found, respond with 403 Forbidden
     if (!user) {
       return res.status(403).json({ success: false, msg: "User not found" });

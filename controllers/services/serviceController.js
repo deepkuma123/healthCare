@@ -1,6 +1,7 @@
 const Service = require("../../models/services/serviceModal");
 const User = require("../../models/userModel");
 const multer = require("multer");
+const axios = require("axios");
 
 const path = require("path");
 
@@ -56,7 +57,55 @@ const getService = async (req, res) => {
   }
 };
 
+const nearByLocation = async (req, res) => {
+  const { lat, lng, radius, serviceName } = req.body;
+
+  if (!lat || !lng || !radius || !serviceName) {
+    return res.status(400).json({
+      error: "Latitude, longitude, radius, and service name are required.",
+    });
+  }
+
+  try {
+    // Fetch nearby places using Google Places API for the single service type
+    const response = await axios.get(
+      "https://maps.googleapis.com/maps/api/place/nearbysearch/json",
+      {
+        params: {
+          location: `${lat},${lng}`,
+          radius,
+          keyword: serviceName,
+          key: "AIzaSyARf505VVJ_bn-5BnQ5qFbyKqWGF4DRn9U", // Use environment variable for API key
+        },
+      }
+    );
+
+    const nearbyPlaces = response.data.results;
+
+    // Prepare the results
+    const results = {
+      serviceType: serviceName,
+      places: nearbyPlaces.map((place) => ({
+        name: place.name,
+        address: place.vicinity,
+        location: {
+          lat: place.geometry.location.lat,
+          lng: place.geometry.location.lng,
+        },
+      })),
+    };
+
+    res.status(200).json(results);
+  } catch (error) {
+    console.error(`Error finding nearby services for ${serviceName}:`, error);
+    res
+      .status(500)
+      .json({ error: "An error occurred while fetching nearby services." });
+  }
+};
+
 module.exports = {
   createService,
   getService,
+  nearByLocation,
 };
