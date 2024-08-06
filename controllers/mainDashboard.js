@@ -64,6 +64,7 @@ const getRecentItem = async (req, res) => {
     }
     res.json(user);
   } catch (err) {
+    console.log(err);
     res.status(500).send("Server Error");
   }
 };
