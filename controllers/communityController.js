@@ -2,6 +2,26 @@ const category = require("../models/category");
 const Community = require("../models/community");
 const ShareMeet = require("../models/sharemeet");
 const userModel = require("../models/userModel");
+const multer = require("multer");
+
+const path = require("path");
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, path.join(__dirname, "../uploads/")); // Destination path for uploaded files
+  },
+  filename: function (req, file, cb) {
+    cb(
+      null,
+      file.fieldname + "-" + Date.now() + path.extname(file.originalname)
+    ); // File naming logic
+  },
+});
+
+// Initialize multer upload
+const upload = multer({
+  storage: storage,
+  limits: { fileSize: 1000000 }, // Limit file size if needed (1MB here)
+}).single("image");
 
 exports.createCommunity = async (req, res) => {
   // try {
@@ -21,31 +41,40 @@ exports.createCommunity = async (req, res) => {
   // }
 
   try {
-    const { name } = req.body; // Extract name and hobbies from the request body
-    const creatorId = req.user._id; // Get the creator's ID from req.user
+    upload(req, res, async (err) => {
+      if (err) {
+        console.error(err);
+        return res.json("image file does not uploaded");
+      }
+      const { name } = req.body; // Extract name and hobbies from the request body
+      const creatorId = req.user._id; // Get the creator's ID from req.user
 
-    // Validate that name and hobbies are provided and hobbies is an array
-    if (!name) {
-      return res
-        .status(400)
-        .send({ message: "Name and at least one hobby are required" });
-    }
+      // Validate that name and hobbies are provided and hobbies is an array
+      if (!name) {
+        return res
+          .status(400)
+          .send({ message: "Name and at least one hobby are required" });
+      }
 
-    const user = await userModel.findById(req.user._id).populate("hobbies"); // Populate the hobbies field
-    // Extract just the names of the hobbies
-    const hobbyNames = user.hobbies.map((hobby) => hobby.name);
-    // Create a new Community instance with the creator, name, and hobbies
-    const community = new Community({
-      name, // Set the community name
-      hobbies: hobbyNames, // Set the community hobbies (array)
-      creator: creatorId, // Set the creator of the community
-      members: [creatorId], // Add the creator as the first member of the community
+      const user = await userModel.findById(req.user._id).populate("hobbies"); // Populate the hobbies field
+      // Extract just the names of the hobbies
+      const hobbyNames = user.hobbies.map((hobby) => hobby.name);
+      const avatarFileName = req.file ? req.file.filename : null; // Check if avatar file was uploaded
+
+      // Create a new Community instance with the creator, name, and hobbies
+      const community = new Community({
+        name, // Set the community name
+        hobbies: hobbyNames, // Set the community hobbies (array)
+        creator: creatorId, // Set the creator of the community
+        members: [creatorId], // Add the creator as the first member of the community
+        communityLogo: avatarFileName,
+      });
+
+      console.log(community);
+
+      await community.save(); // Save the community to the database
+      res.status(201).send({ community: community }); // Respond with the created community
     });
-
-    console.log(community);
-
-    await community.save(); // Save the community to the database
-    res.status(201).send({ community: community }); // Respond with the created community
   } catch (error) {
     console.log(error); // Log any errors for debugging
     res.status(400).send({ message: "Failed to create community", error }); // Respond with a 400 status and the error
