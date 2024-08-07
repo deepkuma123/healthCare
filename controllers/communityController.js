@@ -41,44 +41,59 @@ exports.createCommunity = async (req, res) => {
   // }
 
   try {
+    // Handle file upload
     upload(req, res, async (err) => {
       if (err) {
-        console.error(err);
-        return res.json("image file does not uploaded");
-      }
-      const { name } = req.body; // Extract name and hobbies from the request body
-      const creatorId = req.user._id; // Get the creator's ID from req.user
-
-      // Validate that name and hobbies are provided and hobbies is an array
-      if (!name) {
+        console.error("File upload error:", err);
         return res
           .status(400)
-          .send({ message: "Name and at least one hobby are required" });
+          .json({ message: "Image file was not uploaded", error: err });
       }
 
-      const user = await userModel.findById(req.user._id).populate("hobbies"); // Populate the hobbies field
-      // Extract just the names of the hobbies
-      const hobbyNames = user.hobbies.map((hobby) => hobby.name);
-      const avatarFileName = req.file ? req.file.filename : null; // Check if avatar file was uploaded
+      const { name } = req.body; // Extract name from the request body
+      const creatorId = req.user._id; // Get the creator's ID from req.user
 
-      // Create a new Community instance with the creator, name, and hobbies
-      const community = new Community({
-        name, // Set the community name
-        hobbies: hobbyNames, // Set the community hobbies (array)
-        creator: creatorId, // Set the creator of the community
-        members: [creatorId], // Add the creator as the first member of the community
-        communityLogo: avatarFileName,
-      });
+      // Validate that name is provided
+      if (!name) {
+        return res.status(400).json({ message: "Name is required" });
+      }
 
-      console.log(community);
+      try {
+        // Find the user and populate the hobbies field
+        const user = await userModel.findById(creatorId).populate("hobbies");
+        if (!user) {
+          return res.status(404).json({ message: "User not found" });
+        }
 
-      await community.save(); // Save the community to the database
-      res.status(201).send({ community: community }); // Respond with the created community
+        // Extract just the names of the hobbies
+        const hobbyNames = user.hobbies.map((hobby) => hobby.name);
+        const avatarFileName = req.file ? req.file.filename : null; // Check if avatar file was uploaded
+
+        // Create a new Community instance
+        const community = new Community({
+          name, // Set the community name
+          hobbies: hobbyNames, // Set the community hobbies (array)
+          creator: creatorId, // Set the creator of the community
+          members: [creatorId], // Add the creator as the first member of the community
+          communityLogo: avatarFileName,
+        });
+
+        await community.save(); // Save the community to the database
+        return res.status(201).json({ community }); // Respond with the created community
+      } catch (error) {
+        console.error("Database error:", error);
+        return res
+          .status(500)
+          .json({ message: "Failed to create community", error });
+      }
     });
   } catch (error) {
-    console.log(error); // Log any errors for debugging
-    res.status(400).send({ message: "Failed to create community", error }); // Respond with a 400 status and the error
+    console.error("Unexpected error:", error); // Log any unexpected errors for debugging
+    return res
+      .status(500)
+      .json({ message: "An unexpected error occurred", error });
   }
+
 
   // try {
   //   const { shareMeetIds, age, gender, hobbies } = req.body;
